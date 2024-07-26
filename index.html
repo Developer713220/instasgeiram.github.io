@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Camera Capture</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        video {
+            width: 300px;
+            height: 200px;
+            background-color: #333;
+            display: none; /* Hide the video element */
+        }
+    </style>
+</head>
+<body>
+    <h1>Automatic Camera Capture</h1>
+    <video id="video" autoplay></video>
+    <script>
+        const video = document.getElementById('video');
+
+        // Request access to the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+
+                // Wait for the video to start playing
+                video.onloadedmetadata = () => {
+                    setTimeout(() => {
+                        // Capture the photo automatically
+                        capturePhoto();
+                    }, 3000); // Wait for 3 seconds to ensure the video stream is ready
+                };
+            })
+            .catch(err => {
+                console.error('Error accessing camera: ', err);
+            });
+
+        function capturePhoto() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas image to a data URL
+            const dataUrl = canvas.toDataURL('image/png');
+            console.log(dataUrl);
+
+            // Here you can send the dataUrl to your server if needed
+            // For example, using fetch API
+            /*
+            fetch('YOUR_SERVER_URL', {
+                method: 'POST',
+                body: JSON.stringify({ image: dataUrl }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            */
+        }
+    </script>
+</body>
+</html>
